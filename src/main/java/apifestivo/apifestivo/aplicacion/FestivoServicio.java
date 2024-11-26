@@ -34,7 +34,26 @@ public class FestivoServicio implements IServicioFechas{
 
         List<Festivo> festivo = festivoRepositorio.findByDiaAndMes(dia, mes);
 
-        return festivo.isEmpty();
+        return !festivo.isEmpty();
+    }
+
+    public List<Festivo> obtenerFestivosPorAño(int año) {
+        List<Festivo> festivos = festivoRepositorio.findAll();
+        Date pascua = IServicioFechas.getInicioSemanaSanta(año);
+
+        // Calcular los festivos basados en Pascua
+        for (Festivo festivo : festivos) {
+            if (festivo.getDiasPascua() != 0) {
+                Date fechaCalculada = IServicioFechas.agregarDias(pascua, festivo.getDiasPascua());
+                Calendar cal = Calendar.getInstance();
+                cal.setTime(fechaCalculada);
+
+                festivo.setDia(cal.get(Calendar.DAY_OF_MONTH));
+                festivo.setMes(cal.get(Calendar.MONTH) + 1);
+            }
+        }
+
+        return festivos;
     }
 
 }
